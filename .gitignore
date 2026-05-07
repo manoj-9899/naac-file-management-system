@@ -1,0 +1,12 @@
+**/node_modules/
+**/.next/
+**/out/
+**/coverage/
+
+# env files (never commit secrets)
+**/.env*
+!**/.env.example
+
+# Vercel
+**/.vercel/
+
