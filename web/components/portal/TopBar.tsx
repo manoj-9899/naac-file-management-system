@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Menu, Search, Bell } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { Home, LogOut, Menu, Search, Bell } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getCriterion } from "@/lib/naac";
 import type { CriterionId } from "@/lib/naac/types";
+import { RoleBadge } from "@/components/marketing/RoleBadge";
 import type { PortalUser } from "./PortalShell";
 
 function titleCase(s: string) {
@@ -114,6 +116,7 @@ export function TopBar({
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        <RoleBadge role={user.role} />
         <div className="relative hidden min-w-[200px] max-w-sm flex-1 md:block">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
@@ -137,6 +140,15 @@ export function TopBar({
             <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
           ) : null}
         </Link>
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="hidden items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:inline-flex"
+          title="Log out"
+        >
+          <LogOut className="h-4 w-4" />
+          <span className="hidden md:inline">Log out</span>
+        </button>
       </div>
     </header>
   );

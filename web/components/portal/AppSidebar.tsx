@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
   Activity,
   Award,
@@ -12,17 +13,15 @@ import {
   FolderOpen,
   GraduationCap,
   LayoutDashboard,
+  LogOut,
   PanelLeftClose,
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { NAAC_CRITERIA } from "@/lib/naac";
+import { UNIVERSITY } from "@/lib/site/branding";
+import { RoleBadge } from "@/components/marketing/RoleBadge";
 import type { PortalUser } from "./PortalShell";
-
-const BRAND = {
-  title: "NAAC Portal",
-  subtitle: process.env.NEXT_PUBLIC_PORTAL_DEPARTMENT ?? "DBATU · Computer Engg.",
-};
 
 function NavLink({
   href,
@@ -100,7 +99,7 @@ export function AppSidebar({
   return (
     <aside className={asideClass}>
       <div className="flex h-14 items-center justify-between border-b border-slate-100 px-4 lg:hidden">
-        <span className="text-sm font-semibold text-slate-800">{BRAND.title}</span>
+        <span className="text-sm font-semibold text-slate-800">{UNIVERSITY.shortName}</span>
         <button
           type="button"
           className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"
@@ -118,8 +117,8 @@ export function AppSidebar({
               <GraduationCap className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold leading-tight text-slate-900">{BRAND.title}</p>
-              <p className="text-xs text-slate-500">{BRAND.subtitle}</p>
+              <p className="font-semibold leading-tight text-slate-900">{UNIVERSITY.portalTitle}</p>
+              <p className="text-xs text-slate-500">{UNIVERSITY.department}</p>
             </div>
           </div>
         </div>
@@ -248,17 +247,26 @@ export function AppSidebar({
       </div>
 
       <div className="border-t border-slate-100 p-4">
+        <div className="mb-3 flex justify-center lg:justify-start">
+          <RoleBadge role={user.role} />
+        </div>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
             {initials}
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-slate-900">{user.name}</p>
-            <p className="truncate text-xs text-slate-500">
-              {user.role === "HOD" ? "HOD" : "Teacher"}
-            </p>
+            <p className="truncate text-xs text-slate-500">{user.email}</p>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
+        >
+          <LogOut className="h-4 w-4" />
+          Log out
+        </button>
       </div>
     </aside>
   );

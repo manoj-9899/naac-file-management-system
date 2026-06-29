@@ -237,7 +237,7 @@ export default async function TeacherDashboard() {
                 className="inline-flex rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
                 href="/"
               >
-                Criteria catalog
+                Home
               </Link>
               <Link
                 className="inline-flex rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"

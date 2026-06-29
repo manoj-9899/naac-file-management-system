@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
+import { UNIVERSITY } from "@/lib/site/branding";
 
 type SessionUser = {
   role?: "TEACHER" | "HOD";
@@ -33,8 +34,15 @@ function defaultRedirectFor(user: SessionUser | null) {
   return user.role === "HOD" ? "/hod" : "/teacher";
 }
 
-export default function SignInPage() {
+function portalFromCallback(callbackUrl: string) {
+  if (callbackUrl.startsWith("/hod")) return "HOD" as const;
+  if (callbackUrl.startsWith("/teacher")) return "Teacher" as const;
+  return null;
+}
+
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -45,8 +53,7 @@ export default function SignInPage() {
     setError(null);
     setIsSubmitting(true);
 
-    const callbackUrl =
-      new URL(window.location.href).searchParams.get("callbackUrl") ?? "/";
+    const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
     const res = await signIn("credentials", {
       email: email.trim().toLowerCase(),
@@ -76,18 +83,28 @@ export default function SignInPage() {
     }, 500);
   }
 
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const portal = portalFromCallback(callbackUrl);
+
   return (
-    <div className="min-h-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+    <div className="min-h-full bg-slate-50 text-slate-900">
       <main className="mx-auto flex max-w-md flex-col gap-6 px-6 py-16">
         <header className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">
-            Use your email and password.
+          <p className="text-xs font-medium uppercase tracking-wide text-blue-700">
+            {UNIVERSITY.shortName} · {UNIVERSITY.portalTitle}
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {portal ? `${portal} sign in` : "Sign in"}
+          </h1>
+          <p className="text-sm text-slate-600">
+            {portal
+              ? `Use your ${portal.toLowerCase()} account email and password.`
+              : "Use your email and password."}
           </p>
         </header>
 
         <form
-          className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
+          className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
           onSubmit={onSubmit}
         >
           <label className="block space-y-1">
@@ -119,7 +136,7 @@ export default function SignInPage() {
           ) : null}
 
           <button
-            className="w-full rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            className="w-full rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
             type="submit"
             disabled={isSubmitting}
           >
@@ -127,14 +144,32 @@ export default function SignInPage() {
           </button>
         </form>
 
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        <p className="text-sm text-slate-600">
           Don&apos;t have an account?{" "}
-          <Link className="font-medium underline" href="/auth/register">
+          <Link className="font-medium text-blue-700 underline" href="/auth/register">
             Register
+          </Link>
+          {" · "}
+          <Link className="font-medium text-blue-700 underline" href="/">
+            Back to home
           </Link>
         </p>
       </main>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">
+          Loading…
+        </div>
+      }
+    >
+      <SignInForm />
+    </Suspense>
   );
 }
 
